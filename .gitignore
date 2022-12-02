@@ -274,4 +274,10 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# Test outputs
+test/*.log
+
 # End of https://www.toptal.com/developers/gitignore/api/linux,jetbrains+all,haskell,python
+
+# OSX:
+.DS_Store
