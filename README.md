@@ -2,11 +2,20 @@
 My solutions for the 2022 edition of Advent of Code.
 
 ## Development
+### Starting a new day
 ```
-ghcid dayX/simple.hs --setup ":set args dayX/input.example.txt" --test main
+./new-day.sh
+```
+
+### Development mode
+Execute the following command inside one of the days-folders:
+```
+make dev-simple
+make dev-advanced
 ```
 
 ## Running
 ```
-runhaskell -i. dayX/simple.hs dayX/input.example.txt
+make run-advanced
+make run-simple
 ```
