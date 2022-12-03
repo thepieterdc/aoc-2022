@@ -7,11 +7,8 @@ import           Data.Maybe         (fromJust)
 
 findBadges :: [String] -> [Char]
 findBadges [] = []
-findBadges lines = findBadge search:findBadges rest
+findBadges lines = head (foldl1 intersect search):findBadges rest
     where (search,rest) = splitAt 3 lines
-
-findBadge :: [String] -> Char
-findBadge [a,b,c] = head (a `intersect` b `intersect` c)
 
 prioritise :: Char -> Int
 prioritise c = fromJust (elemIndex c (['a'..'z'] ++ ['A'..'Z'])) + 1
