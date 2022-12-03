@@ -2,9 +2,6 @@ module Main where
 
 import           System.Environment (getArgs)
 
-import           Utils.Filtering    (isNumber)
-import           Utils.Parsing      (parseInt)
-
 score :: String -> Int
 score (op:_:m:_) = case (op,m) of
     ('A', 'X') -> 1 + 3 -- Rock vs Rock
