@@ -18,4 +18,4 @@ main :: IO ()
 main = do
     file:_ <- getArgs
     contents <- readFile file
-    print $ sum (take 3 (sortOn Down (calculateSums (lines contents) 0)))
+    print $ sum $ take 3 $ sortOn Down $ calculateSums (lines contents) 0

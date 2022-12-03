@@ -20,4 +20,4 @@ main :: IO ()
 main = do
     file:_ <- getArgs
     contents <- readFile file
-    print $ sum (map score (lines contents))
+    print $ sum $ map score (lines contents)
