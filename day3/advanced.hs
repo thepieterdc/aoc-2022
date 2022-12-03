@@ -4,8 +4,6 @@ import           System.Environment (getArgs)
 
 import           Data.List          (elemIndex, intersect)
 import           Data.Maybe         (fromJust)
-import           Utils.Filtering    (isNumber)
-import           Utils.Parsing      (parseInt)
 
 findBadges :: [String] -> [Char]
 findBadges [] = []
