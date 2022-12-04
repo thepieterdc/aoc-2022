@@ -1,11 +1,12 @@
 module Main where
 
 import           System.Environment (getArgs)
-import           Utils.Parser       (Parser, digits, doParse, many, token)
+import           Utils.Interval     (overlaps)
+import           Utils.Parser       (Parser, digits, doParse, token)
 import           Utils.Parsing      (parseInt)
 
 contains :: ((Int, Int), (Int, Int)) -> Bool
-contains ((a, b), (c, d)) = (a >= c && a <= d) || (b >= c && b <= d) || (c >= a && c <= b) || (d <= a && d >= b)
+contains (fst, snd) = overlaps fst snd
 
 parse :: Parser ((Int, Int), (Int, Int))
 parse = do

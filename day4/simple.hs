@@ -1,11 +1,12 @@
 module Main where
 
 import           System.Environment (getArgs)
-import           Utils.Parser       (Parser, digits, doParse, many, token)
+import           Utils.Interval     (contains, overlaps)
+import           Utils.Parser       (Parser, digits, doParse, token)
 import           Utils.Parsing      (parseInt)
 
-contains :: ((Int, Int), (Int, Int)) -> Bool
-contains ((a, b), (c, d)) = (a >= c && b <= d) || (c >= a && d <= b)
+_contains :: ((Int, Int), (Int, Int)) -> Bool
+_contains (fst, snd) = contains fst snd || contains snd fst
 
 parse :: Parser ((Int, Int), (Int, Int))
 parse = do
@@ -25,4 +26,4 @@ main :: IO ()
 main = do
     file:_ <- getArgs
     contents <- readFile file
-    print $ length $ filter contains $ map (doParse parse) (lines contents)
+    print $ length $ filter _contains $ map (doParse parse) (lines contents)
