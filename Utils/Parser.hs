@@ -1,4 +1,4 @@
-module Utils.Parser (module Utils.Parser, many, some) where
+module Utils.Parser (module Utils.Parser, many, some, (<|>), void) where
 
 import           Control.Applicative (Alternative, empty, many, some, (<|>))
 import           Control.Monad       (MonadPlus, ap, guard, liftM, mplus, mzero,
@@ -60,14 +60,24 @@ char = Parser f where
     f []    = []
     f (c:s) = [(c, s)]
 
+chars :: Int -> Parser String
+chars 0   = return ""
+chars amt = do {x <- char; y <- chars (amt - 1); return (x : y)}
+
 digit :: Parser Char
 digit = spot isDigit
 
 digits :: Parser String
 digits = some digit
 
+optional :: String -> Parser String
+optional s = string s <|> return []
+
 spot :: (Char -> Bool) -> Parser Char
-spot p = do { c <- char; guard (p c); return c}
+spot p = do {c <- char; guard (p c); return c}
+
+string :: String -> Parser String
+string s = do {cs <- chars (length s); guard (cs == s); return cs}
 
 token :: Char -> Parser ()
 token c = void (spot (c == ))
