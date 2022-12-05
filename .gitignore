@@ -281,3 +281,6 @@ test/*.log
 
 # OSX:
 .DS_Store
+
+# API docs
+docs/
