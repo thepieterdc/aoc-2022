@@ -1,14 +1,17 @@
-module Main where
+module Day5.Common (run) where
 
-import           Data.List          (transpose)
-import           System.Environment (getArgs)
-import           Utils.Parser       (Parser, char, digits, doParse, many,
-                                     optional, some, string, token, void, (<|>))
-import           Utils.Parsing      (parseInt)
+import           Data.List     (transpose)
+import           Data.Maybe    (mapMaybe)
+import           Utils.Parser  (Parser, char, digits, doParse, many, optional,
+                                some, string, token, void, (<|>))
+import           Utils.Parsing (parseInt)
 
 --
 -- Types.
 --
+
+-- Function that modifies the inserted row.
+type InsertHook = [Maybe Char] -> [Maybe Char]
 
 -- Move Amount From To
 data Move = Move Int Int Int deriving (Eq, Show)
@@ -58,33 +61,25 @@ parseMove = do
 -- Utils
 --
 
-applyMove :: Move -> [Row] -> [Row]
-applyMove (Move amt start dest) rows = inserted where
+applyMove :: InsertHook -> Move -> [Row] -> [Row]
+applyMove afterInsert (Move amt start dest) rows = inserted where
     (extracted, remaining) = extract amt start rows
-    inserted = insert extracted dest remaining
+    inserted = insert afterInsert extracted dest remaining
 
 extract :: Int -> Int -> [Row] -> ([Maybe Char], [Row])
 extract amount pos rows = (extracted, remaining) where
     extracted = take amount (rows !! pos)
     remaining = take pos rows ++ drop amount (rows !! pos) : drop (pos + 1) rows
 
-insert :: [Maybe Char] -> Int -> [Row] -> [Row]
-insert part pos rows = take pos rows ++ inserted : drop (pos + 1) rows where
-    -- Add reverse to support moving a whole column at once for performance.
-    inserted = reverse part ++ filter (/= Nothing) (rows !! pos)
+insert :: InsertHook -> [Maybe Char] -> Int -> [Row] -> [Row]
+insert afterInsert part pos rows = take pos rows ++ inserted : drop (pos + 1) rows where
+    inserted = afterInsert part ++ filter (/= Nothing) (rows !! pos)
 
-solve :: [Row] -> [Move] -> [Row]
-solve rows = foldl (flip applyMove) (map (dropWhile (== Nothing)) rows)
-
-translate :: Maybe Char -> String
-translate (Just c) = c : ""
-translate Nothing  = ""
+solve :: InsertHook -> [Row] -> [Move] -> [Row]
+solve afterInsert rows = foldl (flip (applyMove afterInsert)) (map (dropWhile (== Nothing)) rows)
 
 --
 -- The rows are transposed to better facilitate operations.
 --
-main :: IO ()
-main = do
-    file:_ <- getArgs
-    contents <- readFile file
-    print $ concatMap (translate. head) $ uncurry solve (doParse parse contents)
+run :: InsertHook -> String -> String
+run afterInsert contents = mapMaybe head $ uncurry (solve afterInsert) (doParse parse contents)

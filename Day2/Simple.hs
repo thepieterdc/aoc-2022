@@ -1,6 +1,6 @@
-module Main where
+module Day2.Simple (main) where
 
-import           System.Environment (getArgs)
+import           Utils.IO (loadInput)
 
 score :: String -> Int
 score (op:_:m:_) = case (op,m) of
@@ -17,7 +17,4 @@ score (op:_:m:_) = case (op,m) of
 score _ = 0
 
 main :: IO ()
-main = do
-    file:_ <- getArgs
-    contents <- readFile file
-    print $ sum $ map score (lines contents)
+main = do {loadInput >>= print . sum . map score . lines}

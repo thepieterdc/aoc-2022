@@ -1,16 +1,16 @@
 all: clean test-advanced test-simple
 
 dev-advanced:
-	cd ../; ghcid day2/advanced.hs --setup ":set args day2/input/advanced-example.txt" --test main
+	cd ../; ghcid Day2/Advanced.hs --setup ":set args Day2/input/advanced-example.txt" --test main
 
 dev-simple:
-	cd ../; ghcid day2/simple.hs --setup ":set args day2/input/simple-example.txt" --test main
+	cd ../; ghcid Day2/Simple.hs --setup ":set args Day2/input/simple-example.txt" --test main
 
 run-advanced:
-	cd ../; runhaskell day2/advanced.hs day2/input/advanced.txt
+	cd ../; runhaskell Day2/Advanced.hs Day2/input/advanced.txt
 
 run-simple:
-	cd ../; runhaskell day2/simple.hs day2/input/simple.txt
+	cd ../; runhaskell Day2/Simple.hs Day2/input/simple.txt
 
 pretest:
 	mkdir -p test/

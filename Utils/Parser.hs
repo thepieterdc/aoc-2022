@@ -1,4 +1,4 @@
-module Utils.Parser (module Utils.Parser, many, some, (<|>), void) where
+module Utils.Parser (Parser, char, digits, doParse, many, optional, some, string, token, void, (<|>)) where
 
 import           Control.Applicative (Alternative, empty, many, some, (<|>))
 import           Control.Monad       (MonadPlus, ap, guard, liftM, mplus, mzero,
