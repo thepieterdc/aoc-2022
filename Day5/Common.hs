@@ -2,6 +2,7 @@ module Day5.Common (run) where
 
 import           Data.List     (transpose)
 import           Data.Maybe    (mapMaybe)
+import           Utils.Lists   (replace)
 import           Utils.Parser  (Parser, char, digits, doParse, many, optional,
                                 some, string, token, void, (<|>))
 import           Utils.Parsing (parseInt)
@@ -68,11 +69,11 @@ applyMove afterInsert (Move amt start dest) rows = inserted where
 
 extract :: Int -> Int -> [Row] -> ([Maybe Char], [Row])
 extract amount pos rows = (extracted, remaining) where
-    extracted = take amount (rows !! pos)
-    remaining = take pos rows ++ drop amount (rows !! pos) : drop (pos + 1) rows
+    (extracted, remainingRow) = splitAt amount (rows !! pos)
+    remaining = replace pos (const remainingRow) rows
 
 insert :: InsertHook -> [Maybe Char] -> Int -> [Row] -> [Row]
-insert afterInsert part pos rows = take pos rows ++ inserted : drop (pos + 1) rows where
+insert afterInsert part pos rows = replace pos (const inserted) rows where
     inserted = afterInsert part ++ filter (/= Nothing) (rows !! pos)
 
 solve :: InsertHook -> [Row] -> [Move] -> [Row]
