@@ -1,11 +1,10 @@
 module Day5.Common (run) where
 
-import           Data.List     (transpose)
-import           Data.Maybe    (mapMaybe)
-import           Utils.Lists   (mapIdx)
-import           Utils.Parser  (Parser, char, digits, doParse, many, optional,
-                                some, string, token, void, (<|>))
-import           Utils.Parsing (parseInt)
+import           Data.List    (transpose)
+import           Data.Maybe   (mapMaybe)
+import           Utils.Lists  (mapIdx)
+import           Utils.Parser (Parser, char, digits, doParse, integer, many,
+                               optional, some, string, token, void, (<|>))
 
 --
 -- Types.
@@ -49,14 +48,14 @@ parseNames = do {_ <- token ' '; _ <- some (digits <|> string "   "); _ <- strin
 parseMove :: Parser Move
 parseMove = do
     _ <- string "move "
-    amt <- digits
+    amt <- integer
     _ <- string " from "
-    start <- digits
+    start <- integer
     _ <- string " to "
-    dest <- digits
+    dest <- integer
     _ <- token '\n'
     -- Convert start and dest to use zero-based indexing.
-    return $ Move (parseInt amt) (parseInt start - 1) (parseInt dest - 1)
+    return $ Move amt (start - 1) (dest - 1)
 
 --
 -- Utils

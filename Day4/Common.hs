@@ -1,9 +1,8 @@
 module Day4.Common (run) where
 
 import           Utils.Filtering (countWhere)
-import           Utils.Parser    (Parser, digits, doParse, optional, some,
-                                  token)
-import           Utils.Parsing   (parseInt)
+import           Utils.Parser    (Parser, digits, doParse, integer, optional,
+                                  some, token)
 
 parse :: Parser [((Int, Int), (Int, Int))]
 parse = some parseLine
@@ -18,10 +17,10 @@ parseLine = do
 
 pair :: Parser (Int, Int)
 pair = do
-    start <- digits
+    start <- integer
     _ <- token '-'
-    end <- digits
-    return (parseInt start, parseInt end)
+    end <- integer
+    return (start, end)
 
 run :: (((Int, Int), (Int, Int)) -> Bool) -> String -> Int
 run cmp input = countWhere cmp $ doParse parse input

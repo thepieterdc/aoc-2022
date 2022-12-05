@@ -1,13 +1,26 @@
-module Utils.Parser (Parser, char, digits, doParse, many, optional, some, string, token, void, (<|>)) where
+{-|
+Module      : Utils.Parser
+Description : Contains methods to parse strings into usable structures.
+Copyright   : (c) Pieter De Clercq, 2022
+License     : MIT
+
+Contains methods to parse strings into usable structures.
+-}
+module Utils.Parser (Parser, char, digits, doParse, integer, many, optional, some, string, token, void, (<|>)) where
 
 import           Control.Applicative (Alternative, empty, many, some, (<|>))
 import           Control.Monad       (MonadPlus, ap, guard, liftM, mplus, mzero,
                                       void)
 import           Data.Char           (isDigit)
 
+-- |Definiton of a Parser from Strings to custom types.
 newtype Parser a = Parser (String -> [(a, String)])
 
-doParse :: (Show a) => Parser a -> String -> a
+-- |Executes the given parser.
+doParse :: (Show a)
+    => Parser a -- ^ The parser to run
+    -> String -- ^ The input string to parse
+    -> a -- ^ The resulting structure
 doParse m s = one [x | (x, t) <- apply m s, t == ""] where
     one [x] = x
     one [] = error ("Parse not completed:\n" ++ show s)
@@ -27,6 +40,7 @@ instance Alternative Parser where
     some :: Parser a -> Parser [a]
     some p = do { x <- p; xs <- many p; return (x:xs)}
 
+    -- |Runs the second parser if the first did not succeed.
     (<|>) :: Parser a -> Parser a -> Parser a
     (<|>) p q = Parser (\s ->
                         case apply p s of
@@ -55,29 +69,41 @@ instance MonadPlus Parser where
     mzero :: Parser a
     mzero = Parser (const [])
 
+-- |Parses a single character.
 char :: Parser Char
 char = Parser f where
     f []    = []
     f (c:s) = [(c, s)]
 
+-- |Parses the given amount of characters into a String.
 chars :: Int -> Parser String
 chars 0   = return ""
 chars amt = do {x <- char; y <- chars (amt - 1); return (x : y)}
 
+-- |Parses a single digit into a Char.
 digit :: Parser Char
 digit = spot isDigit
 
+-- |Parses multiple digits into a String.
 digits :: Parser String
 digits = some digit
 
+-- |Parses multiple digits into an Integer.
+integer :: Parser Int
+integer = do {d <- digits; return (read d :: Int)}
+
+-- |Attempts to parse a String that might be absent.
 optional :: String -> Parser String
 optional s = string s <|> return []
 
+-- |Matches the given character.
 spot :: (Char -> Bool) -> Parser Char
 spot p = do {c <- char; guard (p c); return c}
 
+-- |Matches the given string.
 string :: String -> Parser String
 string s = do {cs <- chars (length s); guard (cs == s); return cs}
 
+-- |Matches the given character, discarding the result.
 token :: Char -> Parser ()
 token c = void (spot (c == ))
