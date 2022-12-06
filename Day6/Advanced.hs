@@ -1,4 +1,4 @@
-module Day6.Simple (main) where
+module Day6.Advanced (main) where
 import           Day6.Common (run)
 import           Utils.IO    (loadInput)
 
