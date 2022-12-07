@@ -1,9 +1,6 @@
-module Main where
+module Day__day__.Simple where
 
-import           System.Environment (getArgs)
+import           Utils.IO (loadInput)
 
 main :: IO ()
-main = do
-    file:_ <- getArgs
-    contents <- readFile file
-    print $ lines contents
+main = loadInput >>= print

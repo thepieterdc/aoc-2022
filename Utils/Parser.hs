@@ -6,12 +6,13 @@ License     : MIT
 
 Contains methods to parse strings into usable structures.
 -}
-module Utils.Parser (Parser, char, digits, doParse, integer, many, optional, some, string, token, void, (<|>)) where
+module Utils.Parser (Parser, char, digits, doParse, guard, integer, many, optional, some, string, token, until, void, (<|>)) where
 
 import           Control.Applicative (Alternative, empty, many, some, (<|>))
 import           Control.Monad       (MonadPlus, ap, guard, liftM, mplus, mzero,
                                       void)
 import           Data.Char           (isDigit)
+import           Prelude             hiding (until)
 
 -- |Definiton of a Parser from Strings to custom types.
 newtype Parser a = Parser (String -> [(a, String)])
@@ -106,4 +107,10 @@ string s = do {cs <- chars (length s); guard (cs == s); return cs}
 
 -- |Matches the given character, discarding the result.
 token :: Char -> Parser ()
-token c = void (spot (c == ))
+token c = void (spot (== c))
+
+-- |Parses the string until the given character is found.
+until :: Char -> Parser String
+until c = found <|> continue where
+    found = spot (== c) >> return [c]
+    continue = do {c' <- char; rest <- until c; return $ c' : rest}
