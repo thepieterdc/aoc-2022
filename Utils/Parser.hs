@@ -111,6 +111,4 @@ token c = void (spot (== c))
 
 -- |Parses the string until the given character is found.
 until :: Char -> Parser String
-until c = found <|> continue where
-    found = spot (== c) >> return [c]
-    continue = do {c' <- char; rest <- until c; return $ c' : rest}
+until c = do {cs <- some $ spot (/= c); c' <- char; return $ cs ++ [c]}
