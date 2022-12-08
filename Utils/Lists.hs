@@ -15,3 +15,9 @@ mapIdx ::
     -> [a] -- ^ The input list
     -> [a] -- ^ The resulting list
 mapIdx pos f l = take pos l ++ f (l !! pos) : drop (pos + 1) l
+
+-- |Counts the amount of Nothing elements in the given list of Maybes.
+nothings :: [Maybe a] -> Int
+nothings []             = 0
+nothings (Nothing:rest) = 1 + nothings rest
+nothings (_:rest)       = nothings rest

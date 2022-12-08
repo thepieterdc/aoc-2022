@@ -6,7 +6,7 @@ License     : MIT
 
 Contains methods to parse strings into usable structures.
 -}
-module Utils.Parser (Parser, char, digits, doParse, guard, integer, many, optional, some, string, token, until, void, (<|>)) where
+module Utils.Parser (Parser, char, digits, doParse, end, guard, integer, many, optional, some, string, token, until, void, (<|>)) where
 
 import           Control.Applicative (Alternative, empty, many, some, (<|>))
 import           Control.Monad       (MonadPlus, ap, guard, liftM, mplus, mzero,
@@ -21,8 +21,8 @@ newtype Parser a = Parser (String -> [(a, String)])
 doParse :: (Show a)
     => Parser a -- ^ The parser to run
     -> String -- ^ The input string to parse
-    -> [a] -- ^ The resulting structure
-doParse m s = take 2 [x | (x, t) <- apply m s, t == ""] where
+    -> a -- ^ The resulting structure
+doParse m s = one [x | (x, t) <- apply m s, t == ""] where
     one [x] = x
     one [] = error ("Parse not completed:\n" ++ show s)
     one xs | length xs > 1 = error ("Multiple parses found:\n" ++ show xs)
@@ -39,7 +39,7 @@ instance Alternative Parser where
     many p = some p `mplus` return []
 
     some :: Parser a -> Parser [a]
-    some p = do { x <- p; xs <- many p; return (x:xs)}
+    some p = do {x <- p; xs <- many p; return (x:xs)}
 
     -- |Runs the second parser if the first did not succeed.
     (<|>) :: Parser a -> Parser a -> Parser a
@@ -88,6 +88,12 @@ digit = spot isDigit
 -- |Parses multiple digits into a String.
 digits :: Parser String
 digits = some digit
+
+-- |Matches the end of the file.
+end :: Parser ()
+end = Parser f where
+    f [] = [((), [])]
+    f cs = [((), cs)]
 
 -- |Parses multiple digits into an Integer.
 integer :: Parser Int
