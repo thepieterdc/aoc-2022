@@ -1,4 +1,4 @@
-module Day7.Common (Tree(Dir, File), run, size) where
+module Day7.Common (Tree(Dir, File), findDirectorySizes, run, size) where
 
 import           Data.Maybe   (catMaybes, fromJust, listToMaybe)
 import           Prelude      hiding (until)
@@ -35,10 +35,10 @@ parseDirectoryContents = parseFile <|> parseDirectoryName where
     parseDirectoryName = string "dir" >> until '\n' >> return Nothing
     parseFile = do {size <- integer; token ' '; n <- until '\n'; return $ Just (File n size)}
 
---findDirectorySizes :: Tree -> [Int]
---findDirectorySizes d@(Dir _ fs) = size d : concatMap findDirectorySizes fs
+findDirectorySizes :: Tree -> [Int]
+findDirectorySizes d@(Dir _ fs) = size d : concatMap findDirectorySizes fs
 -- we only care about directories.
---findDirectorySizes _            = [0]
+findDirectorySizes _            = [0]
 
 run :: String -> Tree
 run = doParse parse
