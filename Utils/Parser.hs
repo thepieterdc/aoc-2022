@@ -21,8 +21,8 @@ newtype Parser a = Parser (String -> [(a, String)])
 doParse :: (Show a)
     => Parser a -- ^ The parser to run
     -> String -- ^ The input string to parse
-    -> a -- ^ The resulting structure
-doParse m s = one [x | (x, t) <- apply m s, t == ""] where
+    -> [a] -- ^ The resulting structure
+doParse m s = take 2 [x | (x, t) <- apply m s, t == ""] where
     one [x] = x
     one [] = error ("Parse not completed:\n" ++ show s)
     one xs | length xs > 1 = error ("Multiple parses found:\n" ++ show xs)

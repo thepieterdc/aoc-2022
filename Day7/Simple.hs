@@ -9,4 +9,4 @@ findDirectorySizes d@(Dir _ fs) = size d : concatMap findDirectorySizes fs
 findDirectorySizes _            = [0]
 
 main :: IO ()
-main = do {loadInput >>= print . sum . filter (<= 100000). findDirectorySizes . run}
+main = do {loadInput >>= putStrLn . show . run}

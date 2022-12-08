@@ -39,7 +39,7 @@ findDirectorySizes d@(Dir _ fs) = size d : concatMap findDirectorySizes fs
 -- we only care about directories.
 findDirectorySizes _            = [0]
 
-run :: String -> Tree
+run :: String -> [Tree]
 run = doParse parse
 
 size :: Tree -> Int
