@@ -6,7 +6,7 @@ License     : MIT
 
 Contains methods to parse strings into usable structures.
 -}
-module Utils.Parser (Parser, char, digits, doParse, guard, integer, many, optional, some, string, token, until, void, (<|>)) where
+module Utils.Parser (Parser, char, digits, doParse, end, guard, integer, many, optional, some, string, token, until, void, (<|>)) where
 
 import           Control.Applicative (Alternative, empty, many, some, (<|>))
 import           Control.Monad       (MonadPlus, ap, guard, liftM, mplus, mzero,
@@ -39,7 +39,7 @@ instance Alternative Parser where
     many p = some p `mplus` return []
 
     some :: Parser a -> Parser [a]
-    some p = do { x <- p; xs <- many p; return (x:xs)}
+    some p = do {x <- p; xs <- many p; return (x:xs)}
 
     -- |Runs the second parser if the first did not succeed.
     (<|>) :: Parser a -> Parser a -> Parser a
@@ -89,6 +89,12 @@ digit = spot isDigit
 digits :: Parser String
 digits = some digit
 
+-- |Matches the end of the file.
+end :: Parser ()
+end = Parser f where
+    f [] = [((), [])]
+    f cs = [((), cs)]
+
 -- |Parses multiple digits into an Integer.
 integer :: Parser Int
 integer = do {d <- digits; return (read d :: Int)}
@@ -111,6 +117,4 @@ token c = void (spot (== c))
 
 -- |Parses the string until the given character is found.
 until :: Char -> Parser String
-until c = found <|> continue where
-    found = spot (== c) >> return [c]
-    continue = do {c' <- char; rest <- until c; return $ c' : rest}
+until c = do {cs <- some $ spot (/= c); c' <- char; return $ cs ++ [c]}
