@@ -284,3 +284,6 @@ test/*.log
 
 # API docs
 docs/
+
+# Profiling
+Main.hs

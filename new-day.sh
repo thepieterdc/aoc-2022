@@ -8,5 +8,7 @@ nextDayNo=$(echo "$currentMax" + 1 | bc)
 echo "Starting day $nextDayNo"
 cp -r _tpl/ "Day$nextDayNo"
 
-# Format the Makefile.
+# Format the template files.
+sed -i "" "s/__day__/$nextDayNo/g" "Day$nextDayNo/Advanced.hs"
 sed -i "" "s/__day__/$nextDayNo/g" "Day$nextDayNo/Makefile"
+sed -i "" "s/__day__/$nextDayNo/g" "Day$nextDayNo/Simple.hs"
