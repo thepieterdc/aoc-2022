@@ -97,7 +97,9 @@ end = Parser f where
 
 -- |Parses multiple digits into an Integer.
 integer :: Parser Int
-integer = do {d <- digits; return (read d :: Int)}
+integer = positive <|> negative where
+    positive = do {d <- digits; return (read d :: Int)}
+    negative = do {token '-'; d <- digits; return (-read d :: Int)}
 
 -- |Attempts to parse a String that might be absent.
 optional :: String -> Parser String

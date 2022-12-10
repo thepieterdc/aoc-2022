@@ -10,4 +10,4 @@ findRequiredSpace :: [Int] -> (Int, [Int])
 findRequiredSpace is = (30000000 - (70000000 - head is), tail is)
 
 main :: IO ()
-main = do{loadInput >>= print . uncurry findDelete . findRequiredSpace . findDirectorySizes . run}
+main = do {loadInput >>= print . uncurry findDelete . findRequiredSpace . findDirectorySizes . run}

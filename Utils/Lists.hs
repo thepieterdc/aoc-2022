@@ -7,6 +7,13 @@ License     : MIT
 Contains methods to operate on lists.
 -}
 module Utils.Lists (module Utils.Lists) where
+import           Control.Monad (ap)
+import           Data.List     (unfoldr)
+import           Data.Maybe    (listToMaybe)
+
+-- |Splits the list in groups of the given size.
+groupBySize :: Int -> [a] -> [[a]]
+groupBySize size = unfoldr $ listToMaybe . ap (>>) (return . splitAt size)
 
 -- |Applies the given function to the element at the given position in the list.
 mapIdx ::
