@@ -1,6 +1,8 @@
-module Day11.Common (parse, Monkey, clearItems, incProcessed, items, process, processed, target, transfer) where
+module Day11.Common (parse, Monkey, clearItems, incProcessed, items, monkeyBusiness, process, processed, target, test, transfer) where
 
+import           Data.List    (sortOn)
 import           Data.Maybe   (fromMaybe)
+import           Data.Ord     (Down (Down))
 import           Prelude      hiding (until)
 import           Utils.Parser (Parser, char, doParse, integer, many, optional,
                                some, string, token, until, void, (<|>))
@@ -69,6 +71,9 @@ incProcessed amt (Monkey is o t tt tf p) = Monkey is o t tt tf (p + amt)
 items :: Monkey -> [Int]
 items (Monkey a _ _ _ _ _) = a
 
+monkeyBusiness :: [Monkey] -> Int
+monkeyBusiness = product . take 2 . sortOn Down . map processed
+
 process :: Monkey -> (Int -> Int)
 process (Monkey _ op _ _ _ _) = op
 
@@ -76,7 +81,10 @@ processed :: Monkey -> Int
 processed (Monkey _ _ _ _ _ p) = p
 
 target :: Monkey -> Int -> Int
-target (Monkey _ _ test ifTrue ifFalse _) i = if i `mod` test == 0 then ifTrue else ifFalse
+target (Monkey _ _ t ifTrue ifFalse _) i = if i `mod` t == 0 then ifTrue else ifFalse
+
+test :: Monkey -> Int
+test (Monkey _ _ t _ _ _) = t
 
 transfer :: [Monkey] -> Int -> Int -> [Monkey]
 transfer [] _ _ = []

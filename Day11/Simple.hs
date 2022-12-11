@@ -1,9 +1,7 @@
 module Day11.Simple where
 
-import           Data.List    (sortOn)
-import           Data.Ord     (Down (Down))
-import           Day11.Common (Monkey, clearItems, incProcessed, items, parse,
-                               process, processed, target, transfer)
+import           Day11.Common (Monkey, clearItems, incProcessed, items,
+                               monkeyBusiness, parse, process, target, transfer)
 import           Utils.IO     (loadInput)
 import           Utils.Lists  (mapIdx)
 
@@ -15,4 +13,4 @@ run idx monkeys = if idx >= length monkeys then monkeys else
     in run (idx + 1) (mapIdx idx (incProcessed (length processedItems) . clearItems) newMonkeys)
 
 main :: IO ()
-main = loadInput >>= print . product . take 2 . sortOn Down . map processed . (!! 20) . iterate (run 0) . parse
+main = loadInput >>= print . monkeyBusiness . (!! 20) . iterate (run 0) . parse
