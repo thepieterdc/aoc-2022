@@ -1,6 +1,5 @@
 module Day9.Common (run) where
 import           Data.Bifunctor (bimap)
-import           Data.Foldable  (foldl')
 import           Data.List      (mapAccumL, nub)
 import           Utils.Grid     (Coordinate, chebyshev, orthogonal)
 
@@ -10,6 +9,8 @@ import           Utils.Grid     (Coordinate, chebyshev, orthogonal)
 
 -- |Describes the coordinate transformation
 type Direction = (Int, Int)
+
+type Move = (Direction, Int)
 
 --
 -- Parsing
@@ -61,7 +62,7 @@ moveHead mvs = (0, 0) : map snd (snd $ mapAccumL mv (0, 0) mvs) where
     mv c d = (bimap (fst c +) (snd c +) d, (d, bimap (fst c +) (snd c +) d))
 
 trail :: Int -> [Coordinate] -> [Coordinate]
-trail amt cs = iterate (foldl' (\r c -> r ++ [follow (last r) c]) [(0, 0)]) cs !! amt
+trail amt cs = iterate (reverse . foldl (\r c -> follow (head r) c : r) [(0, 0)]) cs !! amt
 
 run :: Int -> String -> Int
 run amt = length . nub . trail amt . moveHead . parse

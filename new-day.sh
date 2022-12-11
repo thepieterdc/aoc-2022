@@ -3,7 +3,7 @@
 set -e
 
 # Identify the next day.
-currentMax=$(find . -type d -name "Day*" | sort -r | egrep -o "[0-9]+" | head -n 1)
+currentMax=$(find . -type d -name "Day*" | egrep -o "[0-9]+" | sort -nr | head -n 1)
 nextDayNo=$(echo "$currentMax" + 1 | bc)
 echo "Starting day $nextDayNo"
 cp -r _tpl/ "Day$nextDayNo"
