@@ -1,9 +1,10 @@
-module Day11.Common (parse, Monkey, clearItems, incProcessed, items, monkeyBusiness, process, processed, target, test, transfer) where
+module Day11.Common (parse, run, test) where
 
 import           Data.List    (sortOn)
 import           Data.Maybe   (fromMaybe)
 import           Data.Ord     (Down (Down))
 import           Prelude      hiding (until)
+import           Utils.Lists  (mapIdx)
 import           Utils.Parser (Parser, char, doParse, integer, many, optional,
                                some, string, token, until, void, (<|>))
 
@@ -59,24 +60,6 @@ parseTestBranch = do {until ':'; string " throw to monkey "; n <- integer; token
 -- Utils
 --
 
-addItem :: Monkey -> Int -> Monkey
-addItem (Monkey is o t tt tf p) i = Monkey (is ++ [i]) o t tt tf p
-
-clearItems :: Monkey -> Monkey
-clearItems (Monkey is o t tt tf p) = Monkey [] o t tt tf p
-
-incProcessed :: Int -> Monkey -> Monkey
-incProcessed amt (Monkey is o t tt tf p) = Monkey is o t tt tf (p + amt)
-
-items :: Monkey -> [Int]
-items (Monkey a _ _ _ _ _) = a
-
-monkeyBusiness :: [Monkey] -> Int
-monkeyBusiness = product . take 2 . sortOn Down . map processed
-
-process :: Monkey -> (Int -> Int)
-process (Monkey _ op _ _ _ _) = op
-
 processed :: Monkey -> Int
 processed (Monkey _ _ _ _ _ p) = p
 
@@ -88,6 +71,15 @@ test (Monkey _ _ t _ _ _) = t
 
 transfer :: [Monkey] -> Int -> Int -> [Monkey]
 transfer [] _ _ = []
-transfer (m:ms) dest item = if dest == 0
-    then addItem m item : ms
+transfer (m@(Monkey is o t tt tf p):ms) dest item = if dest == 0
+    then Monkey (is ++ [item]) o t tt tf p : ms
     else m : transfer ms (dest - 1) item
+
+run :: (Int -> Int) -> Int -> [Monkey] -> Int
+run afterProcess runs = product . take 2 . sortOn Down . map processed . (!! runs) . iterate (run' afterProcess 0)
+
+run' :: (Int -> Int) -> Int -> [Monkey] -> [Monkey]
+run' afterProcess idx monkeys = if idx >= length monkeys then monkeys else
+    let monkey@(Monkey items op t tt tf p) = monkeys !! idx
+        newMonkeys = foldl (uncurry . transfer) monkeys (map ((\i -> (target monkey i, i)) . afterProcess . op) items)
+    in run' afterProcess (idx + 1) (mapIdx idx (const (Monkey [] op t tt tf (p + length items))) newMonkeys)
