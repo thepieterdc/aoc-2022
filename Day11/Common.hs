@@ -1,4 +1,4 @@
-module Day11.Common (parse) where
+module Day11.Common (parse, Monkey, clearItems, incProcessed, items, process, processed, target, transfer) where
 
 import           Data.Maybe   (fromMaybe)
 import           Prelude      hiding (until)
@@ -9,8 +9,8 @@ import           Utils.Parser (Parser, char, doParse, integer, many, optional,
 -- Types
 --
 
--- (StartingItems, Operation, Test, IfTrue, IfFalse)
-type Monkey = ([Int], Operation, Int, Int, Int)
+-- (StartingItems, Operation, Test, IfTrue, IfFalse, Processed)
+data Monkey = Monkey [Int] Operation Int Int Int Int deriving (Show)
 
 type Operation = (Int -> Int)
 
@@ -35,7 +35,7 @@ parseMonkey = do
     tt <- parseTestBranch
     tf <- parseTestBranch
     optional "\n"
-    return (si, op, t, tt, tf)
+    return $ Monkey si op t tt tf 0
 
 parseOperation :: Parser (Int -> Int)
 parseOperation = do {string "  O"; until '='; fn <- parse'; token '\n'; return fn} where
@@ -52,3 +52,34 @@ parseTest = do {until 'y'; token ' '; n <- integer; token '\n'; return n}
 
 parseTestBranch :: Parser Int
 parseTestBranch = do {until ':'; string " throw to monkey "; n <- integer; token '\n'; return n}
+
+--
+-- Utils
+--
+
+addItem :: Monkey -> Int -> Monkey
+addItem (Monkey is o t tt tf p) i = Monkey (is ++ [i]) o t tt tf p
+
+clearItems :: Monkey -> Monkey
+clearItems (Monkey is o t tt tf p) = Monkey [] o t tt tf p
+
+incProcessed :: Int -> Monkey -> Monkey
+incProcessed amt (Monkey is o t tt tf p) = Monkey is o t tt tf (p + amt)
+
+items :: Monkey -> [Int]
+items (Monkey a _ _ _ _ _) = a
+
+process :: Monkey -> (Int -> Int)
+process (Monkey _ op _ _ _ _) = op
+
+processed :: Monkey -> Int
+processed (Monkey _ _ _ _ _ p) = p
+
+target :: Monkey -> Int -> Int
+target (Monkey _ _ test ifTrue ifFalse _) i = if i `mod` test == 0 then ifTrue else ifFalse
+
+transfer :: [Monkey] -> Int -> Int -> [Monkey]
+transfer [] _ _ = []
+transfer (m:ms) dest item = if dest == 0
+    then addItem m item : ms
+    else m : transfer ms (dest - 1) item
