@@ -60,22 +60,15 @@ isEnd _                                      = False
 isOpen :: Node -> Bool
 isOpen (Node _ _ _ o _ _ _ _) = o
 
--- isStartN :: Node -> Bool
--- isStartN (Node (Cell _ _ True _) _ _ _ _ _ _) = True
--- isStartN _                                    = False
-
 neighbours :: Grid -> Node -> [Node]
 neighbours (Grid cols rows nodes) (Node i (Cell _ e _ _) _ _ _ _ _ _) = nbs where
     -- top, left, right, down
     ids = [i - cols, i - 1, i + 1, i + cols]
     nbs = filter (\n -> (elevation n - e) <= 1) [nodes !! i | i <- ids, 0 < i && i < length nodes]
 
--- parentIdx :: Node -> Maybe Int
--- parentIdx (Node _ p _ _ _ _ _) = p
-
-pathfind :: Grid -> Grid
+pathfind :: Grid -> [Coordinate]
 -- Mark the start node as open.
-pathfind g@(Grid _ _ nodes) = pathfind' 1400 (coordinates end) g where
+pathfind g@(Grid _ _ nodes) = backtrack (idx end) $ pathfind' (coordinates end) g where
     cost (Node _ _ _ _ _ _ _ f) = f
 
     end = head $ filter isEnd nodes
@@ -88,35 +81,29 @@ pathfind g@(Grid _ _ nodes) = pathfind' 1400 (coordinates end) g where
         newG = parentG + 1
         elevationRemaining = 25 - elevation node
         d = manhattan end (coordinates node)
-        newH = sum $ zipWith (curry product) [1..d] (cycle (reverse [1..elevationRemaining]))
+        newH = sum $ zipWith (curry product) [1..d] (cycle (reverse [0..elevationRemaining]))
         newNode = Node i c (Just (idx parent)) True False newG newH (newG + newH)
 
-    pathfind' :: Int -> Coordinate -> Grid -> Grid
-    pathfind' stop end g@(Grid cols rows nodes) = if stop < 1 || endFound nodes then g else
+    pathfind' :: Coordinate -> Grid -> Grid
+    pathfind' end g@(Grid cols rows nodes) = if endFound nodes then g else
         let current = minimumBy (\a b -> (if cost a < cost b then LT else GT)) $ filter isOpen nodes
             -- Ignore already closed nodes, process the neighbours.
             nbs = filter (not. isClosed) (neighbours g current)
             updatedNbs = map (updateNeighbour current end) $ filter (not. isClosed) $ neighbours g current
             -- Store the updates, mark the current node as closed
             updatedCurrent = mapIdx (idx current) close nodes
-        in pathfind' (stop - 1) end (Grid cols rows (foldl (\ns n -> mapIdx (idx n) (const n) ns) updatedCurrent updatedNbs))
+        in pathfind' end (Grid cols rows (foldl (\ns n -> mapIdx (idx n) (const n) ns) updatedCurrent updatedNbs))
 
--- backtrack :: Int -> [(Int, Node)] -> [Coordinate]
--- backtrack currentIdx nodes = if isStartN here then [] else coordinates here : backtrack parent nodes where
---     here = snd (nodes !! currentIdx)
---     done = isStartN here
---     parent = fromMaybe 0 $ parentIdx here
+backtrack :: Int -> Grid -> [Coordinate]
+backtrack currentIdx g@(Grid _ _ nodes) = if isStartN here then [] else coordinates here : backtrack parent g where
+    isStartN (Node _ (Cell _ _ True _) _ _ _ _ _ _) = True
+    isStartN _                                      = False
 
-fmt :: Grid -> [String]
-fmt g@(Grid _ _ nodes) = map (map code) groups where
-    groups = groupBy (\c1 c2 -> snd (coordinates c1) == snd (coordinates c2)) nodes
-    code (Node _ (Cell _ _ True _) _ _ _ _ _ _) = 'S'
-    code (Node _ (Cell _ _ _ True) _ _ _ _ _ _) = 'E'
-    code (Node _ (Cell _ c _ _) _ True _ _ _ _) = chr (c + 65)
-    code (Node _ _ _ _ True _ _ _)              = ' '
-    code (Node _ (Cell _ c _ _) _ _ _ _ _ _)    = chr (c + 97)
+    parentIdx :: Node -> Maybe Int
+    parentIdx (Node _ _ p _ _ _ _ _) = p
+
+    here = nodes !! currentIdx
+    parent = fromMaybe 0 $ parentIdx here
 
 main :: IO ()
--- main = loadInput >>= mapM_ putStrLn . fmt . pathfind . parse . lines
-main = loadInput >>= mapM_ putStrLn . fmt . pathfind . parse . lines
--- main = loadInput >>= print . fmt . pathfind . parse . lines
+main = loadInput >>= print . length . pathfind . parse . lines
