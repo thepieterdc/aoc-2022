@@ -15,6 +15,10 @@ type Coordinate = (Int, Int)
 chebyshev :: Coordinate -> Coordinate -> Int
 chebyshev (x1, y1) (x2, y2) = maximum $ map abs [x1 - x2, y1 - y2]
 
+-- |Calculates the Manhattan distance between two coordinates.
+manhattan :: Coordinate -> Coordinate -> Int
+manhattan (x1, y1) (x2, y2) = abs (x1 - x2) + abs (y1 - y2)
+
 -- |Gets whether two coordinates are orthogonally placed.
 --  If both coordinates are equal, they are considered orthogonal.
 orthogonal :: Coordinate -> Coordinate -> Bool
