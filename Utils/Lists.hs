@@ -23,6 +23,11 @@ mapIdx ::
     -> [a] -- ^ The resulting list
 mapIdx pos f l = take pos l ++ f (l !! pos) : drop (pos + 1) l
 
+-- |Gets the head of the list if the list is not empty.
+maybeHead :: [a] -> Maybe a
+maybeHead []     = Nothing
+maybeHead (a:as) = Just a
+
 -- |Counts the amount of Nothing elements in the given list of Maybes.
 nothings :: [Maybe a] -> Int
 nothings []             = 0
